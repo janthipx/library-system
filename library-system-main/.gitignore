@@ -1,9 +1,0 @@
-node_modules
-dist
-.angular
-.env
-.env.*
-backend/.env*
-.env.local
-coverage
-.vercel
