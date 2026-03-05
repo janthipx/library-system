@@ -1,0 +1,101 @@
+<header class="page-header">
+  <span class="view-tag">การดูแลระบบ</span>
+  <h1 class="page-title">ทะเบียนสมาชิก</h1>
+</header>
+
+<div class="loading-fade" *ngIf="loading">
+  <div class="skeleton-loader" style="height: 400px;"></div>
+</div>
+
+<p class="error-msg" *ngIf="!loading && error">{{ error }}</p>
+
+<div class="members-layout" *ngIf="!loading">
+  <section class="management-card invite-section">
+    <div class="card-header">
+      <h2 class="card-title">เชิญผู้ใช้งานใหม่</h2>
+      <p class="card-subtitle">ส่งคำเชิญสมาชิกห้องสมุดใหม่ผ่านอีเมล</p>
+    </div>
+
+    <div class="invite-form">
+      <div class="input-group">
+        <label>ชื่อ-นามสกุล</label>
+        <input [(ngModel)]="inviteName" placeholder="เช่น นายตัวอย่าง ทดสอบ" />
+      </div>
+      <div class="input-group">
+        <label>อีเมล</label>
+        <input [(ngModel)]="inviteEmail" placeholder="student@rmuti.ac.th" />
+      </div>
+      <div class="input-group">
+        <label>ระดับสิทธิ์การใช้งาน</label>
+        <select [(ngModel)]="inviteRole">
+          <option value="student">นักศึกษา (Student)</option>
+          <option value="instructor">อาจารย์ (Instructor)</option>
+          <option value="staff">เจ้าหน้าที่ (Staff)</option>
+          <option value="admin">ผู้ดูแลระบบ (Admin)</option>
+        </select>
+      </div>
+      <button class="btn-invite" (click)="invite()" [disabled]="inviting">
+        <span class="material-icons" *ngIf="!inviting">mail_outline</span>
+        {{ inviting ? 'กำลังตรวจสอบ...' : 'ส่งลิงก์คำเชิญ' }}
+      </button>
+    </div>
+  </section>
+
+  <section class="management-card users-section">
+    <div class="card-header flex-header">
+      <div>
+        <h2 class="card-title">สมาชิกในระบบ</h2>
+        <p class="card-subtitle">มีผู้ใช้ยืนยันตัวตนแล้ว {{ users.length }} รายการ</p>
+      </div>
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input [(ngModel)]="search" (ngModelChange)="applyFilter()" placeholder="ค้นหาด้วยชื่อ, รหัส หรือสิทธิ์..." />
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="premium-table" *ngIf="filtered.length; else noUsers">
+        <thead>
+          <tr>
+            <th>ข้อมูลสมาชิก</th>
+            <th>รหัสนักศึกษา/รหัสบัตร</th>
+            <th>สิทธิ์การใช้งาน</th>
+            <th class="text-right">สถานะบัญชี</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of filtered">
+            <td>
+              <div class="member-info">
+                <span class="member-name">{{ u.full_name }}</span>
+                <small class="member-email">{{ u.email }}</small>
+              </div>
+            </td>
+            <td><code>{{ u.student_id || 'EXTERNAL' }}</code></td>
+            <td>
+              <div class="role-selector">
+                <select [ngModel]="u.role" (ngModelChange)="changeRole(u, $event)" [disabled]="savingUserId === u.id">
+                  <option value="student">Student</option>
+                  <option value="instructor">Instructor</option>
+                  <option value="staff">Staff</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <div class="spinner-mini" *ngIf="savingUserId === u.id"></div>
+              </div>
+            </td>
+            <td class="text-right">
+              <button class="status-toggle" [class.active]="u.is_active" (click)="toggleActive(u)">
+                {{ u.is_active ? 'เปิดใช้งาน' : 'ระงับการใช้งาน' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noUsers>
+        <div class="empty-state">
+          <p>ไม่พบสมาชิกที่ตรงกับคำค้นหา</p>
+        </div>
+      </ng-template>
+    </div>
+  </section>
+</div>
